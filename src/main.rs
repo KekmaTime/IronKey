@@ -5,6 +5,7 @@ use rand::distributions::Alphanumeric;
 use rand::Rng;
 use ratatui::backend::CrosstermBackend;
 use ratatui::layout::{Constraint, Direction, Layout};
+use ratatui::prelude::Text;
 use ratatui::style::{Color, Style};
 use ratatui::widgets::{Block, Borders, Paragraph};
 use ratatui::Terminal;
@@ -18,30 +19,33 @@ fn main() -> Result<()> {
 
     let mut pass: String = rand::thread_rng()
         .sample_iter(&Alphanumeric)
-        .take(30)
+        .take(0)
         .map(char::from)
         .collect();
-
+    let mut pass_len: usize = 0;
     loop {
         term.draw(|f| {
             let chunks = Layout::default()
                 .direction(Direction::Vertical)
                 .margin(1)
-                .constraints(
-                    [
-                        Constraint::Percentage(10),
-                        Constraint::Percentage(80),
-                        Constraint::Percentage(10),
-                    ]
-                    .as_ref(),
-                )
+                .constraints([Constraint::Percentage(30), Constraint::Percentage(50)].as_ref())
                 .split(f.size());
 
+            let title = "IronKey";
+            let width = 140;
+            let title = format!("{: ^1$}", title, width);
+
             let block = Block::default()
-                .title("Testing")
+                .title(&*title)
                 .style(Style::default().fg(Color::Green).bg(Color::Black))
                 .borders(Borders::ALL);
             f.render_widget(block, chunks[0]);
+
+            let current_length =
+                Paragraph::new(Text::from(format!("Password Length: {}", pass_len)))
+                    .style(Style::default().fg(Color::Green).bg(Color::Black))
+                    .block(Block::default().borders(Borders::ALL));
+            f.render_widget(current_length, chunks[0]);
 
             let paragraph = Paragraph::new(&*pass)
                 .style(Style::default().fg(Color::Green).bg(Color::Black))
@@ -54,10 +58,14 @@ fn main() -> Result<()> {
                 KeyCode::Char('q') => {
                     break;
                 }
+                KeyCode::Char(c) if c.is_digit(10) => {
+                    let digit: usize = c.to_digit(10).unwrap() as usize;
+                    pass_len = pass_len + 1;
+                }
                 _ => {
                     pass = rand::thread_rng()
                         .sample_iter(&Alphanumeric)
-                        .take(30)
+                        .take(pass_len)
                         .map(char::from)
                         .collect();
                 }
