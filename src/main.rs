@@ -18,6 +18,7 @@ fn main() -> Result<()> {
     term.clear()?;
 
     let mut pass_len: usize = 0;
+    let mut input = String::new();
 
     // First screen
     loop {
@@ -37,7 +38,10 @@ fn main() -> Result<()> {
                     break;
                 }
                 KeyCode::Char(c) if c.is_digit(10) => {
-                    pass_len = c.to_digit(10).unwrap() as usize;
+                    input.push(c);
+                }
+                KeyCode::Enter => {
+                    pass_len = input.parse::<usize>().unwrap_or_default();
                     break;
                 }
                 _ => {}
