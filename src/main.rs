@@ -4,8 +4,7 @@ use crossterm::ExecutableCommand;
 use rand::distributions::Alphanumeric;
 use rand::Rng;
 use ratatui::backend::CrosstermBackend;
-use ratatui::layout::{Constraint, Direction, Layout};
-use ratatui::prelude::Text;
+use ratatui::layout:: Rect;
 use ratatui::style::{Color, Style};
 use ratatui::widgets::{Block, Borders, Paragraph};
 use ratatui::Terminal;
@@ -14,43 +13,22 @@ use std::io::{stdout, Result};
 fn main() -> Result<()> {
     stdout().execute(EnterAlternateScreen)?;
     enable_raw_mode()?;
+
     let mut term = Terminal::new(CrosstermBackend::new(stdout()))?;
     term.clear()?;
 
-    let mut pass: String = rand::thread_rng()
-        .sample_iter(&Alphanumeric)
-        .take(0)
-        .map(char::from)
-        .collect();
     let mut pass_len: usize = 0;
+
+    // First screen
     loop {
         term.draw(|f| {
-            let chunks = Layout::default()
-                .direction(Direction::Vertical)
-                .margin(1)
-                .constraints([Constraint::Percentage(30), Constraint::Percentage(50)].as_ref())
-                .split(f.size());
-
-            let title = "IronKey";
-            let width = 140;
-            let title = format!("{: ^1$}", title, width);
-
+            let size = f.size();
             let block = Block::default()
-                .title(&*title)
+                .title("Enter Password Length")
                 .style(Style::default().fg(Color::Green).bg(Color::Black))
                 .borders(Borders::ALL);
-            f.render_widget(block, chunks[0]);
-
-            let current_length =
-                Paragraph::new(Text::from(format!("Password Length: {}", pass_len)))
-                    .style(Style::default().fg(Color::Green).bg(Color::Black))
-                    .block(Block::default().borders(Borders::ALL));
-            f.render_widget(current_length, chunks[0]);
-
-            let paragraph = Paragraph::new(&*pass)
-                .style(Style::default().fg(Color::Green).bg(Color::Black))
-                .block(Block::default().borders(Borders::ALL));
-            f.render_widget(paragraph, chunks[1]);
+            let area = centered_rect(50, 20, size);
+            f.render_widget(block, area);
         })?;
 
         if let Event::Key(event) = read()? {
@@ -59,16 +37,46 @@ fn main() -> Result<()> {
                     break;
                 }
                 KeyCode::Char(c) if c.is_digit(10) => {
-                    let digit: usize = c.to_digit(10).unwrap() as usize;
-                    pass_len = pass_len + 1;
+                    pass_len = c.to_digit(10).unwrap() as usize;
+                    break;
                 }
-                _ => {
-                    pass = rand::thread_rng()
-                        .sample_iter(&Alphanumeric)
-                        .take(pass_len)
-                        .map(char::from)
-                        .collect();
+                _ => {}
+            }
+        }
+    }
+
+    term.clear()?;
+
+    // Second screen
+    let pass: String = rand::thread_rng()
+        .sample_iter(&Alphanumeric)
+        .take(pass_len)
+        .map(char::from)
+        .collect();
+
+    loop {
+        term.draw(|f| {
+            let size = f.size();
+            let block = Block::default()
+                .title("Generated Password")
+                .style(Style::default().fg(Color::Green).bg(Color::Black))
+                .borders(Borders::ALL);
+            let area = centered_rect(50, 20, size);
+            f.render_widget(block, area);
+
+            let paragraph = Paragraph::new(&*pass)
+                .style(Style::default().fg(Color::Green).bg(Color::Black))
+                .block(Block::default().borders(Borders::ALL));
+            let area = centered_rect(50, 20, size);
+            f.render_widget(paragraph, area);
+        })?;
+
+        if let Event::Key(event) = read()? {
+            match event.code {
+                KeyCode::Char('q') => {
+                    break;
                 }
+                _ => {}
             }
         }
     }
@@ -76,4 +84,15 @@ fn main() -> Result<()> {
     let _ = stdout().execute(LeaveAlternateScreen);
     terminal::disable_raw_mode()?;
     Ok(())
+}
+
+fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
+    let padding_x = r.width.saturating_sub(r.width.saturating_mul(percent_x) / 100) / 2;
+    let padding_y = r.height.saturating_sub(r.height.saturating_mul(percent_y) / 100) / 2;
+    Rect::new(
+        r.x + padding_x,
+        r.y + padding_y,
+        r.width.saturating_sub(padding_x * 2),
+        r.height.saturating_sub(padding_y * 2),
+    )
 }
