@@ -4,7 +4,7 @@ use crossterm::ExecutableCommand;
 use rand::distributions::Alphanumeric;
 use rand::Rng;
 use ratatui::backend::CrosstermBackend;
-use ratatui::layout:: Rect;
+use ratatui::layout::Rect;
 use ratatui::style::{Color, Style};
 use ratatui::widgets::{Block, Borders, Paragraph};
 use ratatui::Terminal;
@@ -28,14 +28,14 @@ fn main() -> Result<()> {
                 .title("Enter Password Length")
                 .style(Style::default().fg(Color::Green).bg(Color::Black))
                 .borders(Borders::ALL);
-            let area = centered_rect(50, 20, size);
+            let area = centered_rect(50, 30, size);
             f.render_widget(block, area);
 
             let input_block = Paragraph::new(input.as_str())
-            .style(Style::default().fg(Color::Green).bg(Color::Black))
-            .block(Block::default().borders(Borders::ALL));
-        let input_area = centered_rect(50, 22, size); // Adjust the position as needed
-        f.render_widget(input_block, input_area);
+                .style(Style::default().fg(Color::Green).bg(Color::Black))
+                .block(Block::default().borders(Borders::NONE));
+            let input_area = centered_rect(45, 20, size);
+            f.render_widget(input_block, input_area);
         })?;
 
         if let Event::Key(event) = read()? {
@@ -74,13 +74,13 @@ fn main() -> Result<()> {
                 .title("Generated Password")
                 .style(Style::default().fg(Color::Green).bg(Color::Black))
                 .borders(Borders::ALL);
-            let area = centered_rect(50, 20, size);
+            let area = centered_rect(50, 30, size);
             f.render_widget(block, area);
 
             let paragraph = Paragraph::new(&*pass)
                 .style(Style::default().fg(Color::Green).bg(Color::Black))
-                .block(Block::default().borders(Borders::ALL));
-            let area = centered_rect(50, 20, size);
+                .block(Block::default().borders(Borders::NONE));
+            let area = centered_rect(40, 20, size);
             f.render_widget(paragraph, area);
         })?;
 
@@ -100,8 +100,14 @@ fn main() -> Result<()> {
 }
 
 fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
-    let padding_x = r.width.saturating_sub(r.width.saturating_mul(percent_x) / 100) / 2;
-    let padding_y = r.height.saturating_sub(r.height.saturating_mul(percent_y) / 100) / 2;
+    let padding_x = r
+        .width
+        .saturating_sub(r.width.saturating_mul(percent_x) / 100)
+        / 2;
+    let padding_y = r
+        .height
+        .saturating_sub(r.height.saturating_mul(percent_y) / 100)
+        / 2;
     Rect::new(
         r.x + padding_x,
         r.y + padding_y,
