@@ -1,10 +1,11 @@
+mod mods;
+use mods::utils::*;
 use crossterm::event::{read, Event, KeyCode};
 use crossterm::terminal::{self, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen};
 use crossterm::ExecutableCommand;
 use rand::distributions::Alphanumeric;
 use rand::Rng;
 use ratatui::backend::CrosstermBackend;
-use ratatui::layout::Rect;
 use ratatui::style::{Color, Style};
 use ratatui::widgets::{Block, Borders, Paragraph};
 use ratatui::Terminal;
@@ -97,21 +98,4 @@ fn main() -> Result<()> {
     let _ = stdout().execute(LeaveAlternateScreen);
     terminal::disable_raw_mode()?;
     Ok(())
-}
-
-fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
-    let padding_x = r
-        .width
-        .saturating_sub(r.width.saturating_mul(percent_x) / 100)
-        / 2;
-    let padding_y = r
-        .height
-        .saturating_sub(r.height.saturating_mul(percent_y) / 100)
-        / 2;
-    Rect::new(
-        r.x + padding_x,
-        r.y + padding_y,
-        r.width.saturating_sub(padding_x * 2),
-        r.height.saturating_sub(padding_y * 2),
-    )
 }
