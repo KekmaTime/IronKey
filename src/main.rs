@@ -30,6 +30,12 @@ fn main() -> Result<()> {
                 .borders(Borders::ALL);
             let area = centered_rect(50, 20, size);
             f.render_widget(block, area);
+
+            let input_block = Paragraph::new(input.as_str())
+            .style(Style::default().fg(Color::Green).bg(Color::Black))
+            .block(Block::default().borders(Borders::ALL));
+        let input_area = centered_rect(50, 22, size); // Adjust the position as needed
+        f.render_widget(input_block, input_area);
         })?;
 
         if let Event::Key(event) = read()? {
@@ -39,6 +45,9 @@ fn main() -> Result<()> {
                 }
                 KeyCode::Char(c) if c.is_digit(10) => {
                     input.push(c);
+                }
+                KeyCode::Backspace => {
+                    input.pop();
                 }
                 KeyCode::Enter => {
                     pass_len = input.parse::<usize>().unwrap_or_default();
