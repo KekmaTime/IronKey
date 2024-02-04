@@ -1,4 +1,15 @@
 use ratatui::layout::Rect;
+use std::fs::OpenOptions;
+use std::io::prelude::*;
+
+pub fn savepass(filename: &str, password: &str) -> std::io::Result<()> {
+    let mut file = OpenOptions::new()
+        .write(true)
+        .append(true)
+        .create(true)
+        .open(filename)?;
+    writeln!(file, "{}", password)
+}
 
 pub fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
     let padding_x = r

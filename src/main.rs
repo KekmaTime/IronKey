@@ -10,6 +10,8 @@ use ratatui::style::{Color, Style};
 use ratatui::widgets::{Block, Borders, Paragraph};
 use ratatui::Terminal;
 use std::io::{stdout, Result};
+use dirs;
+use std::path::PathBuf;
 
 fn main() -> Result<()> {
     stdout().execute(EnterAlternateScreen)?;
@@ -61,13 +63,18 @@ fn main() -> Result<()> {
 
     term.clear()?;
 
-    // Second screen
+    
     let pass: String = rand::thread_rng()
         .sample_iter(&Alphanumeric)
         .take(pass_len)
         .map(char::from)
         .collect();
+    let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
+    let mut file_path = home;
+    file_path.push("passwords.txt");
+    savepass(file_path.to_str().unwrap(), &pass)?;
 
+    // Second screen
     loop {
         term.draw(|f| {
             let size = f.size();
