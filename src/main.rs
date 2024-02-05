@@ -1,7 +1,9 @@
 mod mods;
 use mods::utils::*;
-use crossterm::event::{read, Event, KeyCode};
+use crossterm::event::{read, Event, KeyCode,KeyModifiers};
 use crossterm::terminal::{self, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen};
+use clipboard::ClipboardProvider;
+use clipboard::ClipboardContext;
 use crossterm::ExecutableCommand;
 use rand::distributions::Alphanumeric;
 use rand::Rng;
@@ -74,6 +76,8 @@ fn main() -> Result<()> {
     file_path.push("passwords.txt");
     savepass(file_path.to_str().unwrap(), &pass)?;
 
+    let mut status_message = String::new();
+
     // Second screen
     loop {
         term.draw(|f| {
@@ -90,10 +94,21 @@ fn main() -> Result<()> {
                 .block(Block::default().borders(Borders::NONE));
             let area = centered_rect(40, 20, size);
             f.render_widget(paragraph, area);
+
+            let status_paragraph = Paragraph::new(&*status_message)
+            .style(Style::default().fg(Color::Green).bg(Color::Black))
+            .block(Block::default().borders(Borders::NONE));
+            let area = centered_rect(40, 10, size);
+            f.render_widget(status_paragraph, area);
         })?;
 
         if let Event::Key(event) = read()? {
             match event.code {
+                KeyCode::Char('c') if event.modifiers.contains(KeyModifiers::CONTROL) => {
+                    let mut ctx: ClipboardContext = ClipboardProvider::new().unwrap();
+                    ctx.set_contents(pass.clone()).unwrap();
+                    status_message = "Password copied to clipboard!".to_string();
+                }
                 KeyCode::Char('q') => {
                     break;
                 }

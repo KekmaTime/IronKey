@@ -11,3 +11,4 @@ rand = "0.8.5"
 ratatui = { version = "0.26.0", features = ["all-widgets"] }
 scanrs = "0.3.0"
 dirs = "5.0.1"
+clipboard = "0.5.0"
