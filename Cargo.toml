@@ -2,7 +2,12 @@
 name = "ironkey"
 version = "0.1.0"
 edition = "2021"
-
+license = "MIT"
+description = "A simple password generator with fast TUI"
+homepage = "https://git.kekma.tech/IronKey.git"
+documentation = "https://github.com/KekmaTime/IronKey/blob/master/README.md"
+repository = "https://github.com/KekmaTime/IronKey"
+readme = "README.md"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
