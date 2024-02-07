@@ -5,11 +5,11 @@ use crossterm::terminal::{self, enable_raw_mode, EnterAlternateScreen, LeaveAlte
 use clipboard::ClipboardProvider;
 use clipboard::ClipboardContext;
 use crossterm::ExecutableCommand;
-use rand::distributions::Alphanumeric;
+use rand::distributions::Uniform;
 use rand::Rng;
 use ratatui::backend::CrosstermBackend;
 use ratatui::style::{Color, Style};
-use ratatui::widgets::{Block, Borders, Paragraph};
+use ratatui::widgets::{Block, Borders, Paragraph, List,ListState};
 use ratatui::Terminal;
 use std::io::{stdout, Result};
 use dirs;
@@ -24,25 +24,78 @@ fn main() -> Result<()> {
 
     let mut pass_len: usize = 0;
     let mut input = String::new();
+    let options = vec!["Uppercase", "Lowercase", "Numbers", "Special Characters"];
+    let mut selected_options = vec![false; options.len()];
 
-    // First screen
+    let mut list_state = ListState::default();
+    if !options.is_empty() {
+       list_state.select(Some(0));
+    }
+
+    //1st screen
     loop {
         term.draw(|f| {
             let size = f.size();
-            let block = Block::default()
-                .title("Enter Password Length")
-                .style(Style::default().fg(Color::Green).bg(Color::Black))
-                .borders(Borders::ALL);
-            let area = centered_rect(50, 30, size);
-            f.render_widget(block, area);
 
-            let input_block = Paragraph::new(input.as_str())
+            let centered_rect = centered_rect(50, 40, size);
+            let items: Vec<_> = options.iter().enumerate().map(|(i, option)| {
+                let symbol = if selected_options[i] { "[*]" } else { "[ ]" };
+                format!("{} {}", symbol, option)
+            }).collect();
+
+            let list = List::new(items)
+                .block(Block::default().borders(Borders::ALL).title("Select Options"))
                 .style(Style::default().fg(Color::Green).bg(Color::Black))
-                .block(Block::default().borders(Borders::NONE));
-            let input_area = centered_rect(45, 20, size);
-            f.render_widget(input_block, input_area);
+                .highlight_style(Style::default().fg(Color::Green).bg(Color::Black))
+                .highlight_symbol("❯ ");
+
+            f.render_stateful_widget(list, centered_rect, &mut list_state);
         })?;
+        if let Event::Key(event) = read()? {
+            match event.code {
+                KeyCode::Char('q') => {
+                    break;
+                }
+                KeyCode::Up => {
+                    if let Some(selected) = list_state.selected() {
+                        if selected > 0 {
+                            list_state.select(Some(selected - 1));
+                        }
+                    }
+                }
+                KeyCode::Down => {
+                    if let Some(selected) = list_state.selected() {
+                        if selected < options.len() - 1 {
+                            list_state.select(Some(selected + 1));
+                        }
+                    }
+                }
+                KeyCode::Enter => {
+                    if let Some(selected) = list_state.selected() {
+                        selected_options[selected] = !selected_options[selected];
+                    }
+                }
+                _ => {}
+            }
+        }
+    }
 
+    term.clear()?;
+
+    // Second screen
+    loop {
+        term.draw(|f| {
+            let size = f.size();
+    
+            let centered_rect = centered_rect(50, 40, size);
+    
+            let input_block = Paragraph::new(input.as_ref() as &str)
+                .block(Block::default().borders(Borders::ALL).title("Enter Password Length"))
+                .style(Style::default().fg(Color::Green).bg(Color::Black));
+    
+            f.render_widget(input_block, centered_rect);
+        })?;
+    
         if let Event::Key(event) = read()? {
             match event.code {
                 KeyCode::Char('q') => {
@@ -51,11 +104,11 @@ fn main() -> Result<()> {
                 KeyCode::Char(c) if c.is_digit(10) => {
                     input.push(c);
                 }
-                KeyCode::Backspace => {
+                KeyCode::Backspace if !input.is_empty() => {
                     input.pop();
                 }
                 KeyCode::Enter => {
-                    pass_len = input.parse::<usize>().unwrap_or_default();
+                    pass_len = input.parse().unwrap_or(0);
                     break;
                 }
                 _ => {}
@@ -65,11 +118,33 @@ fn main() -> Result<()> {
 
     term.clear()?;
 
+    let lowercase_letters = "abcdefghijklmnopqrstuvwxyz";
+    let uppercase_letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    let numbers = "0123456789";
+    let symbols = "!@#$%^&*()";
+
+    let mut charset = String::new();
+
+    if selected_options[0] {
+        charset.push_str(lowercase_letters);
+    }
+    if selected_options[1] {
+        charset.push_str(uppercase_letters);
+    }
+    if selected_options[2] {
+        charset.push_str(numbers);
+    }
+    if selected_options[3] {
+        charset.push_str(symbols);
+    }
+
+    let charset = charset.chars().collect::<Vec<char>>();
+    let dist = Uniform::from(0..charset.len());
     
     let pass: String = rand::thread_rng()
-        .sample_iter(&Alphanumeric)
+        .sample_iter(&dist)
         .take(pass_len)
-        .map(char::from)
+        .map(|index| charset[index])
         .collect();
     let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
     let mut file_path = home;
@@ -78,7 +153,7 @@ fn main() -> Result<()> {
 
     let mut status_message = String::new();
 
-    // Second screen
+    // Third screen
     loop {
         term.draw(|f| {
             let size = f.size();
