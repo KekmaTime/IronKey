@@ -1,18 +1,18 @@
 mod mods;
-use mods::utils::*;
-use crossterm::event::{read, Event, KeyCode,KeyModifiers};
-use crossterm::terminal::{self, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen};
-use clipboard::ClipboardProvider;
 use clipboard::ClipboardContext;
+use clipboard::ClipboardProvider;
+use crossterm::event::{read, Event, KeyCode, KeyModifiers};
+use crossterm::terminal::{self, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen};
 use crossterm::ExecutableCommand;
+use dirs;
+use mods::utils::*;
 use rand::distributions::Uniform;
 use rand::Rng;
 use ratatui::backend::CrosstermBackend;
 use ratatui::style::{Color, Style};
-use ratatui::widgets::{Block, Borders, Paragraph, List,ListState};
+use ratatui::widgets::{Block, Borders, List, ListState, Paragraph};
 use ratatui::Terminal;
 use std::io::{stdout, Result};
-use dirs;
 use std::path::PathBuf;
 
 fn main() -> Result<()> {
@@ -29,7 +29,7 @@ fn main() -> Result<()> {
 
     let mut list_state = ListState::default();
     if !options.is_empty() {
-       list_state.select(Some(0));
+        list_state.select(Some(0));
     }
 
     //1st screen
@@ -38,13 +38,21 @@ fn main() -> Result<()> {
             let size = f.size();
 
             let centered_rect = centered_rect(50, 40, size);
-            let items: Vec<_> = options.iter().enumerate().map(|(i, option)| {
-                let symbol = if selected_options[i] { "[*]" } else { "[ ]" };
-                format!("{} {}", symbol, option)
-            }).collect();
+            let items: Vec<_> = options
+                .iter()
+                .enumerate()
+                .map(|(i, option)| {
+                    let symbol = if selected_options[i] { "[*]" } else { "[ ]" };
+                    format!("{} {}", symbol, option)
+                })
+                .collect();
 
             let list = List::new(items)
-                .block(Block::default().borders(Borders::ALL).title("Select Options"))
+                .block(
+                    Block::default()
+                        .borders(Borders::ALL)
+                        .title("Select Options"),
+                )
                 .style(Style::default().fg(Color::Green).bg(Color::Black))
                 .highlight_style(Style::default().fg(Color::Green).bg(Color::Black))
                 .highlight_symbol("❯ ");
@@ -86,16 +94,20 @@ fn main() -> Result<()> {
     loop {
         term.draw(|f| {
             let size = f.size();
-    
+
             let centered_rect = centered_rect(50, 40, size);
-    
+
             let input_block = Paragraph::new(input.as_ref() as &str)
-                .block(Block::default().borders(Borders::ALL).title("Enter Password Length"))
+                .block(
+                    Block::default()
+                        .borders(Borders::ALL)
+                        .title("Enter Password Length"),
+                )
                 .style(Style::default().fg(Color::Green).bg(Color::Black));
-    
+
             f.render_widget(input_block, centered_rect);
         })?;
-    
+
         if let Event::Key(event) = read()? {
             match event.code {
                 KeyCode::Char('q') => {
@@ -121,7 +133,7 @@ fn main() -> Result<()> {
     let lowercase_letters = "abcdefghijklmnopqrstuvwxyz";
     let uppercase_letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     let numbers = "0123456789";
-    let symbols = "!@#$%^&*()";
+    let symbols = "!@#$%^&*()_-+=|[]{};:',.<>?`~";
 
     let mut charset = String::new();
 
@@ -140,7 +152,7 @@ fn main() -> Result<()> {
 
     let charset = charset.chars().collect::<Vec<char>>();
     let dist = Uniform::from(0..charset.len());
-    
+
     let pass: String = rand::thread_rng()
         .sample_iter(&dist)
         .take(pass_len)
@@ -171,8 +183,8 @@ fn main() -> Result<()> {
             f.render_widget(paragraph, area);
 
             let status_paragraph = Paragraph::new(&*status_message)
-            .style(Style::default().fg(Color::Green).bg(Color::Black))
-            .block(Block::default().borders(Borders::NONE));
+                .style(Style::default().fg(Color::Green).bg(Color::Black))
+                .block(Block::default().borders(Borders::NONE));
             let area = centered_rect(40, 10, size);
             f.render_widget(status_paragraph, area);
         })?;
