@@ -134,7 +134,7 @@ fn main() -> Result<()> {
     selected_options.get(3).cloned().unwrap_or_default(),
 ];
 
-    let pass = generate_and_save_password(selected_options_array, pass_len)?;
+    let pass = passgen(selected_options_array, pass_len)?;
 
     let mut status_message = String::new();
 

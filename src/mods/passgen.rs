@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use dirs;
 use super::utils::savepass;
 
-pub fn generate_and_save_password(selected_options: [bool; 4], pass_len: usize) -> std::io::Result<String> {
+pub fn passgen(selected_options: [bool; 4], pass_len: usize) -> std::io::Result<String> {
     let lowercase_letters = "abcdefghijklmnopqrstuvwxyz";
     let uppercase_letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     let numbers = "0123456789";
