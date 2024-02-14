@@ -28,11 +28,17 @@ pub fn passgen(selected_options: [bool; 4], pass_len: usize) -> std::io::Result<
     let charset = charset.chars().collect::<Vec<char>>();
     let dist = Uniform::from(0..charset.len());
 
-    let pass: String = rand::thread_rng()
-        .sample_iter(&dist)
-        .take(pass_len)
-        .map(|index| charset[index])
-        .collect();
+    let mut rng = rand::thread_rng();
+    let mut last_char: Option<char> = None;
+    let mut pass = String::new();
+
+    while pass.len() < pass_len {
+        let new_char = charset[rng.sample(&dist)];
+        if Some(new_char) != last_char {
+            pass.push(new_char);
+            last_char = Some(new_char);
+        }
+    }
     let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
     let mut file_path = home;
     file_path.push("passwords.txt");

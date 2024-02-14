@@ -58,7 +58,7 @@ fn main() -> Result<()> {
         })?;
         if let Event::Key(event) = read()? {
             match event.code {
-                KeyCode::Char('q') => {
+                KeyCode::Right => {
                     break;
                 }
                 KeyCode::Up => {
@@ -107,7 +107,7 @@ fn main() -> Result<()> {
 
         if let Event::Key(event) = read()? {
             match event.code {
-                KeyCode::Char('q') => {
+                KeyCode::Right => {
                     break;
                 }
                 KeyCode::Char(c) if c.is_digit(10) => {
