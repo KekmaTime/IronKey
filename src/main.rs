@@ -4,16 +4,13 @@ use clipboard::ClipboardProvider;
 use crossterm::event::{read, Event, KeyCode, KeyModifiers};
 use crossterm::terminal::{self, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen};
 use crossterm::ExecutableCommand;
-use dirs;
 use mods::utils::*;
-use rand::distributions::Uniform;
-use rand::Rng;
+use mods::passgen::*;
 use ratatui::backend::CrosstermBackend;
 use ratatui::style::{Color, Style};
 use ratatui::widgets::{Block, Borders, List, ListState, Paragraph};
 use ratatui::Terminal;
 use std::io::{stdout, Result};
-use std::path::PathBuf;
 
 fn main() -> Result<()> {
     stdout().execute(EnterAlternateScreen)?;
@@ -130,38 +127,14 @@ fn main() -> Result<()> {
 
     term.clear()?;
 
-    let lowercase_letters = "abcdefghijklmnopqrstuvwxyz";
-    let uppercase_letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
-    let numbers = "0123456789";
-    let symbols = "!@#$%^&*()_-+=|[]{};:',.<>?`~";
+    let selected_options_array: [bool; 4] = [
+    selected_options.get(0).cloned().unwrap_or_default(),
+    selected_options.get(1).cloned().unwrap_or_default(),
+    selected_options.get(2).cloned().unwrap_or_default(),
+    selected_options.get(3).cloned().unwrap_or_default(),
+];
 
-    let mut charset = String::new();
-
-    if selected_options[0] {
-        charset.push_str(lowercase_letters);
-    }
-    if selected_options[1] {
-        charset.push_str(uppercase_letters);
-    }
-    if selected_options[2] {
-        charset.push_str(numbers);
-    }
-    if selected_options[3] {
-        charset.push_str(symbols);
-    }
-
-    let charset = charset.chars().collect::<Vec<char>>();
-    let dist = Uniform::from(0..charset.len());
-
-    let pass: String = rand::thread_rng()
-        .sample_iter(&dist)
-        .take(pass_len)
-        .map(|index| charset[index])
-        .collect();
-    let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
-    let mut file_path = home;
-    file_path.push("passwords.txt");
-    savepass(file_path.to_str().unwrap(), &pass)?;
+    let pass = generate_and_save_password(selected_options_array, pass_len)?;
 
     let mut status_message = String::new();
 
