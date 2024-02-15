@@ -4,9 +4,10 @@ use clipboard::ClipboardProvider;
 use crossterm::event::{read, Event, KeyCode, KeyModifiers};
 use crossterm::terminal::{self, enable_raw_mode, EnterAlternateScreen, LeaveAlternateScreen};
 use crossterm::ExecutableCommand;
-use mods::utils::*;
 use mods::passgen::*;
+use mods::utils::*;
 use ratatui::backend::CrosstermBackend;
+use ratatui::prelude::Alignment;
 use ratatui::style::{Color, Style};
 use ratatui::widgets::{Block, Borders, List, ListState, Paragraph};
 use ratatui::Terminal;
@@ -33,6 +34,13 @@ fn main() -> Result<()> {
     loop {
         term.draw(|f| {
             let size = f.size();
+            let title_block = Block::default()
+                .title("IronKey")
+                .title_alignment(Alignment::Center)
+                .borders(Borders::NONE)
+                .style(Style::default().fg(Color::Green).bg(Color::Black));
+            let title_area = centered_rect(60, 50, size);
+            f.render_widget(title_block, title_area);
 
             let centered_rect = centered_rect(50, 40, size);
             let items: Vec<_> = options
@@ -48,7 +56,8 @@ fn main() -> Result<()> {
                 .block(
                     Block::default()
                         .borders(Borders::ALL)
-                        .title("Select Options"),
+                        .title("Select Options")
+                        .title_alignment(Alignment::Center),
                 )
                 .style(Style::default().fg(Color::Green).bg(Color::Black))
                 .highlight_style(Style::default().fg(Color::Green).bg(Color::Black))
@@ -98,7 +107,8 @@ fn main() -> Result<()> {
                 .block(
                     Block::default()
                         .borders(Borders::ALL)
-                        .title("Enter Password Length"),
+                        .title("Enter Password Length")
+                        .title_alignment(Alignment::Center),
                 )
                 .style(Style::default().fg(Color::Green).bg(Color::Black));
 
@@ -128,11 +138,11 @@ fn main() -> Result<()> {
     term.clear()?;
 
     let selected_options_array: [bool; 4] = [
-    selected_options.get(0).cloned().unwrap_or_default(),
-    selected_options.get(1).cloned().unwrap_or_default(),
-    selected_options.get(2).cloned().unwrap_or_default(),
-    selected_options.get(3).cloned().unwrap_or_default(),
-];
+        selected_options.get(0).cloned().unwrap_or_default(),
+        selected_options.get(1).cloned().unwrap_or_default(),
+        selected_options.get(2).cloned().unwrap_or_default(),
+        selected_options.get(3).cloned().unwrap_or_default(),
+    ];
 
     let pass = passgen(selected_options_array, pass_len)?;
 
@@ -144,6 +154,7 @@ fn main() -> Result<()> {
             let size = f.size();
             let block = Block::default()
                 .title("Generated Password")
+                .title_alignment(Alignment::Center)
                 .style(Style::default().fg(Color::Green).bg(Color::Black))
                 .borders(Borders::ALL);
             let area = centered_rect(50, 30, size);

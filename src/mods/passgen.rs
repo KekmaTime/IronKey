@@ -1,8 +1,8 @@
+use super::utils::savepass;
+use dirs;
 use rand::distributions::Uniform;
 use rand::Rng;
 use std::path::PathBuf;
-use dirs;
-use super::utils::savepass;
 
 pub fn passgen(selected_options: [bool; 4], pass_len: usize) -> std::io::Result<String> {
     let lowercase_letters = "abcdefghijklmnopqrstuvwxyz";
