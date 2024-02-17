@@ -22,7 +22,7 @@ fn main() -> Result<()> {
 
     let mut pass_len: usize = 0;
     let mut input = String::new();
-    let options = vec!["Uppercase", "Lowercase", "Numbers", "Special Characters"];
+    let options = vec!["Uppercase", "Lowercase", "Numbers", "Special Characters" , "Password Length"];
     let mut selected_options = vec![false; options.len()];
 
     let mut list_state = ListState::default();
@@ -38,7 +38,7 @@ fn main() -> Result<()> {
                 .title("IronKey")
                 .title_alignment(Alignment::Center)
                 .borders(Borders::NONE)
-                .style(Style::default().fg(Color::Green).bg(Color::Black));
+                .style(Style::default().fg(Color::Green));
             let title_area = centered_rect(60, 50, size);
             f.render_widget(title_block, title_area);
 
@@ -59,8 +59,8 @@ fn main() -> Result<()> {
                         .title("Select Options")
                         .title_alignment(Alignment::Center),
                 )
-                .style(Style::default().fg(Color::Green).bg(Color::Black))
-                .highlight_style(Style::default().fg(Color::Green).bg(Color::Black))
+                .style(Style::default().fg(Color::Green))
+                .highlight_style(Style::default().fg(Color::Green))
                 .highlight_symbol("❯ ");
 
             f.render_stateful_widget(list, centered_rect, &mut list_state);
@@ -82,53 +82,46 @@ fn main() -> Result<()> {
                         if selected < options.len() - 1 {
                             list_state.select(Some(selected + 1));
                         }
-                    }
+                    } 
                 }
                 KeyCode::Enter => {
                     if let Some(selected) = list_state.selected() {
-                        selected_options[selected] = !selected_options[selected];
+                        if selected == 4 {
+                            loop {
+                                term.draw(|f| {
+                                    let size = f.size();
+                                    let input_block = Block::default()
+                                        .title("Enter Password Length")
+                                        .style(Style::default().fg(Color::Green))
+                                        .borders(Borders::ALL);
+                                    let input_area = centered_rect(60, 20, size);
+                                    f.render_widget(input_block, input_area);
+                                    let input_paragraph = Paragraph::new(input.as_ref() as &str)
+                                        .style(Style::default().fg(Color::Green))
+                                        .block(Block::default().borders(Borders::NONE));
+                                    let input_paragraph_area = centered_rect(58, 18, size);
+                                    f.render_widget(input_paragraph, input_paragraph_area);
+                                })?;
+                                if let Event::Key(event) = read()? {
+                                    match event.code {
+                                        KeyCode::Char(c) if c.is_digit(10) => {
+                                            input.push(c);
+                                        }
+                                        KeyCode::Backspace if !input.is_empty() => {
+                                            input.pop();
+                                        }
+                                        KeyCode::Enter => {
+                                            pass_len = input.parse().unwrap_or(0);
+                                            break;
+                                        }
+                                        _ => {}
+                                    }
+                                }
+                            }
+                        } else {
+                            selected_options[selected] = !selected_options[selected];
+                        }
                     }
-                }
-                _ => {}
-            }
-        }
-    }
-
-    term.clear()?;
-
-    // Second screen
-    loop {
-        term.draw(|f| {
-            let size = f.size();
-
-            let centered_rect = centered_rect(50, 40, size);
-
-            let input_block = Paragraph::new(input.as_ref() as &str)
-                .block(
-                    Block::default()
-                        .borders(Borders::ALL)
-                        .title("Enter Password Length")
-                        .title_alignment(Alignment::Center),
-                )
-                .style(Style::default().fg(Color::Green).bg(Color::Black));
-
-            f.render_widget(input_block, centered_rect);
-        })?;
-
-        if let Event::Key(event) = read()? {
-            match event.code {
-                KeyCode::Right => {
-                    break;
-                }
-                KeyCode::Char(c) if c.is_digit(10) => {
-                    input.push(c);
-                }
-                KeyCode::Backspace if !input.is_empty() => {
-                    input.pop();
-                }
-                KeyCode::Enter => {
-                    pass_len = input.parse().unwrap_or(0);
-                    break;
                 }
                 _ => {}
             }
@@ -148,26 +141,26 @@ fn main() -> Result<()> {
 
     let mut status_message = String::new();
 
-    // Third screen
+    // 2nd screen
     loop {
         term.draw(|f| {
             let size = f.size();
             let block = Block::default()
                 .title("Generated Password")
                 .title_alignment(Alignment::Center)
-                .style(Style::default().fg(Color::Green).bg(Color::Black))
+                .style(Style::default().fg(Color::Green))
                 .borders(Borders::ALL);
             let area = centered_rect(50, 30, size);
             f.render_widget(block, area);
 
             let paragraph = Paragraph::new(&*pass)
-                .style(Style::default().fg(Color::Green).bg(Color::Black))
+                .style(Style::default().fg(Color::Green))
                 .block(Block::default().borders(Borders::NONE));
             let area = centered_rect(40, 20, size);
             f.render_widget(paragraph, area);
 
             let status_paragraph = Paragraph::new(&*status_message)
-                .style(Style::default().fg(Color::Green).bg(Color::Black))
+                .style(Style::default().fg(Color::Green))
                 .block(Block::default().borders(Borders::NONE));
             let area = centered_rect(40, 10, size);
             f.render_widget(status_paragraph, area);
