@@ -1,2 +1,2 @@
-pub mod utils;
 pub mod passgen;
+pub mod utils;
