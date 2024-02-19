@@ -127,6 +127,9 @@ pub fn s2(
                                             KeyCode::Enter => {
                                                 break;
                                             }
+                                            KeyCode::Char('q') => {
+                                                break;
+                                            }
                                             _ => {}
                                         }
                                     }
