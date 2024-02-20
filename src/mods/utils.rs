@@ -1,6 +1,9 @@
 use ratatui::layout::Rect;
 use std::fs::{File, OpenOptions};
-use std::io::Write;
+use std::io::{self, BufRead, Write};
+use std::path::Path;
+
+
 pub fn savepass(filename: &str, password: &str) -> std::io::Result<()> {
     let mut file = OpenOptions::new()
         .write(true)
@@ -30,12 +33,24 @@ pub fn centered_rect(percent_x: u16, percent_y: u16, r: Rect) -> Rect {
 pub fn export_password_history(format: &str, passwords: &[String]) -> std::io::Result<String> {
     let filename = format!("password_history.{}", format);
     let mut file = File::create(&filename)?;
+
+    let mut all_passwords = passwords.to_vec();
+    let home_dir = dirs_next::home_dir().ok_or_else(|| io::Error::new(io::ErrorKind::NotFound, "Could not find home directory"))?;
+    let passwords_file_path = home_dir.join("passwords.txt");
+    if let Ok(lines) = read_lines(passwords_file_path) {
+        for line in lines {
+            if let Ok(password) = line {
+                all_passwords.push(password);
+            }
+        }
+    }
+
     match format {
         "json" => {
-            write!(file, "{}", serde_json::to_string(passwords)?)?;
+            write!(file, "{}", serde_json::to_string(&all_passwords)?)?;
         }
         "csv" => {
-            for password in passwords {
+            for password in &all_passwords {
                 writeln!(file, "{}", password)?;
             }
         }
@@ -47,4 +62,10 @@ pub fn export_password_history(format: &str, passwords: &[String]) -> std::io::R
         }
     }
     Ok(filename)
+}
+
+fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
+where P: AsRef<Path>, {
+    let file = File::open(filename)?;
+    Ok(io::BufReader::new(file).lines())
 }
