@@ -1,8 +1,9 @@
 use super::utils::savepass;
 use rand::distributions::Uniform;
 use rand::Rng;
+use std::io;
 
-pub fn passgen(selected_options: [bool; 4], pass_len: usize) -> std::io::Result<String> {
+pub fn passgen(selected_options: [bool; 4], pass_len: usize) -> io::Result<String> {
     let lowercase_letters = "abcdefghijklmnopqrstuvwxyz";
     let uppercase_letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     let numbers = "0123456789";
@@ -40,4 +41,42 @@ pub fn passgen(selected_options: [bool; 4], pass_len: usize) -> std::io::Result<
     savepass("passwords.txt", &pass)?;
 
     Ok(pass)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_passgen() {
+        // Test case 1: Only lowercase letters
+        let selected_options = [true, false, false, false];
+        let pass_len = 10;
+        let result = passgen(selected_options, pass_len).unwrap();
+        assert_eq!(result.len(), pass_len);
+
+        // Test case 2: Only uppercase letters
+        let selected_options = [false, true, false, false];
+        let pass_len = 8;
+        let result = passgen(selected_options, pass_len).unwrap();
+        assert_eq!(result.len(), pass_len);
+
+        // Test case 3: Only numbers
+        let selected_options = [false, false, true, false];
+        let pass_len = 12;
+        let result = passgen(selected_options, pass_len).unwrap();
+        assert_eq!(result.len(), pass_len);
+
+        // Test case 4: Only symbols
+        let selected_options = [false, false, false, true];
+        let pass_len = 15;
+        let result = passgen(selected_options, pass_len).unwrap();
+        assert_eq!(result.len(), pass_len);
+
+        // Test case 5: Combination of options
+        let selected_options = [true, true, true, true];
+        let pass_len = 20;
+        let result = passgen(selected_options, pass_len).unwrap();
+        assert_eq!(result.len(), pass_len);
+    }
 }
