@@ -1,8 +1,6 @@
 use super::utils::savepass;
-use dirs;
 use rand::distributions::Uniform;
 use rand::Rng;
-use std::path::PathBuf;
 
 pub fn passgen(selected_options: [bool; 4], pass_len: usize) -> std::io::Result<String> {
     let lowercase_letters = "abcdefghijklmnopqrstuvwxyz";
@@ -39,10 +37,7 @@ pub fn passgen(selected_options: [bool; 4], pass_len: usize) -> std::io::Result<
             last_char = Some(new_char);
         }
     }
-    let home = dirs::home_dir().unwrap_or_else(|| PathBuf::from("."));
-    let mut file_path = home;
-    file_path.push("passwords.txt");
-    savepass(file_path.to_str().unwrap(), &pass)?;
+    savepass("passwords.txt", &pass)?;
 
     Ok(pass)
 }
