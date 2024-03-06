@@ -8,9 +8,11 @@ IronKey is a Terminal User Interface (TUI) based password generator written in R
 
 - **Customizable Password Generation**: IronKey generates passwords based on user-selected options. You can choose the length and the types of characters to include in the password.
 
-- **Clipboard Support**: IronKey allows users to copy the generated password directly to their clipboard for ease of use.
-
 - **Password Saving**: IronKey saves the generated password to a file in the user's home directory for future reference.
+
+**Exporting Passwords**: After generating a password, you can export your password history to a file in either JSON or CSV format. This option is presented in the second screen after generating a password.
+
+**Clipboard Support**: You can copy the generated password directly to your clipboard by pressing `Ctrl+C` in the second screen, making it easy to use your new password immediately.
 
 ## Installation
 
@@ -48,4 +50,6 @@ This will start the application & you will be presented with several options for
 
 - **Uppercase Characters**: Use the arrow keys to toggle between "Yes" and "No". If "Yes" is selected, the generated password will include uppercase alphabetic characters.
 
-Once you've set your desired options, press the "Enter" key to generate the password. The generated password will be displayed on the screen and copied to your clipboard. It will also be saved to a file in your home directory for future reference.
+After generating a password, you will be taken to a second screen where you can choose to export your password history to JSON or CSV format. Use the arrow keys to select your desired option and press "Enter" to confirm. The exported file will be saved in your home directory.
+
+To copy the generated password to your clipboard, simply press `Ctrl+C` in the second screen. The password will be copied, and you can paste it wherever needed.
