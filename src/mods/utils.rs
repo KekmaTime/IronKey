@@ -2,6 +2,7 @@ use ratatui::layout::Rect;
 use std::fs::{File, OpenOptions};
 use std::io::{self, BufRead, Write};
 use std::path::Path;
+use clipboard::{ClipboardContext,ClipboardProvider};
 
 pub fn savepass(filename: &str, password: &str) -> std::io::Result<()> {
     let mut file = OpenOptions::new()
@@ -62,6 +63,18 @@ pub fn export_password_history(format: &str, passwords: &[String]) -> std::io::R
         }
     }
     Ok(filename)
+}
+
+pub fn set_clipboard_content(content: &str) -> Result<(), Box<dyn std::error::Error>> {
+    let mut ctx: ClipboardContext = ClipboardProvider::new()?;
+    ctx.set_contents(content.to_owned())?;
+    Ok(())
+}
+
+pub fn get_clipboard_content() -> Result<String, Box<dyn std::error::Error>> {
+    let mut ctx: ClipboardContext = ClipboardProvider::new()?;
+    let content = ctx.get_contents()?;
+    Ok(content)
 }
 
 fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>

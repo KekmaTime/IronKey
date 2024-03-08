@@ -79,4 +79,24 @@ mod tests {
         let result = passgen(selected_options, pass_len).unwrap();
         assert_eq!(result.len(), pass_len);
     }
+
+    #[test]
+    fn no_consecutive_characters() {
+        let selected_options = [true, true, true, true]; // Enable all character types
+        let pass_len = 100; // Generate a relatively long password to test this thoroughly
+        let password = passgen(selected_options, pass_len).unwrap();
+
+        // Check for consecutive characters
+        let mut last_char = '\0'; // Initialize with a character that won't be in the password
+        let mut consecutive_found = false;
+        for c in password.chars() {
+            if c == last_char {
+                consecutive_found = true;
+                break;
+            }
+            last_char = c;
+        }
+
+        assert!(!consecutive_found, "Generated password contains consecutive characters.");
+    }
 }
