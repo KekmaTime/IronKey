@@ -1,7 +1,5 @@
 use super::passgen::passgen;
 use super::utils::*;
-use clipboard::ClipboardContext;
-use clipboard::ClipboardProvider;
 use crossterm::event::{Event, KeyCode, KeyModifiers};
 use ratatui::backend::CrosstermBackend;
 use ratatui::layout::Rect;

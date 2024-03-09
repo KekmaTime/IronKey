@@ -71,12 +71,6 @@ pub fn set_clipboard_content(content: &str) -> Result<(), Box<dyn std::error::Er
     Ok(())
 }
 
-pub fn get_clipboard_content() -> Result<String, Box<dyn std::error::Error>> {
-    let mut ctx: ClipboardContext = ClipboardProvider::new()?;
-    let content = ctx.get_contents()?;
-    Ok(content)
-}
-
 fn read_lines<P>(filename: P) -> io::Result<io::Lines<io::BufReader<File>>>
 where
     P: AsRef<Path>,
