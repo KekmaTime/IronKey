@@ -15,7 +15,7 @@ fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
     enable_raw_mode()?;
 
     let mut term = Terminal::new(CrosstermBackend::new(stdout()))?;
-    term.clear()?;
+    term.clear().map_err(|e| format!("Failed to clear terminal: {}", e))?;
 
     let mut pass_len: usize = 0;
     let mut input = String::new();
@@ -48,6 +48,6 @@ fn main() -> std::result::Result<(), Box<dyn std::error::Error>> {
     s2(selected_options, pass_len, &mut term, &mut read)?;
 
     let _ = stdout().execute(LeaveAlternateScreen);
-    terminal::disable_raw_mode()?;
+    let _ =terminal::disable_raw_mode()?;
     Ok(())
 }

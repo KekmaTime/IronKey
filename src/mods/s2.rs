@@ -28,7 +28,7 @@ pub fn s2(
 
     let mut status_message = String::new();
 
-    let options_2nd_screen = vec!["export-json", "export-csv"];
+    let options_2nd_screen = vec!["export-json", "export-csv" , "view-passwords"];
     let selected_options_2nd_screen = vec![false; options_2nd_screen.len()];
     let mut list_state_2nd_screen = ListState::default();
     if !options_2nd_screen.is_empty() {
