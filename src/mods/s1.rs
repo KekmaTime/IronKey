@@ -57,7 +57,7 @@ pub fn s1(
                 }
                 KeyCode::Up | KeyCode::Down => {
                     navigate_list(&mut list_state, options.len(), event.code);
-                }     
+                }
                 KeyCode::Enter => {
                     if let Some(selected) = list_state.selected() {
                         if selected == 4 {

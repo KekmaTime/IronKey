@@ -81,7 +81,11 @@ pub fn s2(
         if let Event::Key(event) = read()? {
             match event.code {
                 KeyCode::Up | KeyCode::Down => {
-                    navigate_list(&mut list_state_2nd_screen, options_2nd_screen.len(), event.code);
+                    navigate_list(
+                        &mut list_state_2nd_screen,
+                        options_2nd_screen.len(),
+                        event.code,
+                    );
                 }
                 KeyCode::Enter => {
                     if let Some(selected) = list_state_2nd_screen.selected() {
