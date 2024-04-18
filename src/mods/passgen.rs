@@ -1,6 +1,5 @@
 use super::utils::savepass;
-use rand::distributions::Uniform;
-use rand::Rng;
+use rand::prelude::SliceRandom;
 use std::io;
 
 pub fn passgen(selected_options: [bool; 4], pass_len: usize) -> io::Result<String> {
@@ -24,19 +23,14 @@ pub fn passgen(selected_options: [bool; 4], pass_len: usize) -> io::Result<Strin
         charset.push_str(symbols);
     }
 
-    let charset = charset.chars().collect::<Vec<char>>();
-    let dist = Uniform::from(0..charset.len());
-
+    let mut charset_vec = charset.chars().collect::<Vec<char>>();
     let mut rng = rand::thread_rng();
-    let mut last_char: Option<char> = None;
-    let mut pass = String::new();
+    charset_vec.shuffle(&mut rng);
 
-    while pass.len() < pass_len {
-        let new_char = charset[rng.sample(&dist)];
-        if Some(new_char) != last_char {
-            pass.push(new_char);
-            last_char = Some(new_char);
-        }
+    let mut pass = String::with_capacity(pass_len);
+
+    for &char in charset_vec.iter().cycle().take(pass_len) {
+        pass.push(char);
     }
     savepass("passwords.txt", &pass)?;
 
