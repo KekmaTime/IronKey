@@ -1,8 +1,8 @@
+use clipboard::{ClipboardContext, ClipboardProvider};
 use ratatui::layout::Rect;
 use std::fs::{File, OpenOptions};
 use std::io::{self, BufRead, Write};
 use std::path::Path;
-use clipboard::{ClipboardContext,ClipboardProvider};
 
 pub fn savepass(filename: &str, password: &str) -> std::io::Result<()> {
     let mut file = OpenOptions::new()

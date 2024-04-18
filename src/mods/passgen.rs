@@ -97,6 +97,9 @@ mod tests {
             last_char = c;
         }
 
-        assert!(!consecutive_found, "Generated password contains consecutive characters.");
+        assert!(
+            !consecutive_found,
+            "Generated password contains consecutive characters."
+        );
     }
 }
