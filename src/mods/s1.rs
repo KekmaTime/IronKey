@@ -1,4 +1,4 @@
-use super::utils::centered_rect;
+use super::utils::{centered_rect, navigate_list};
 use crossterm::event::{read, Event, KeyCode};
 use ratatui::backend::CrosstermBackend;
 use ratatui::prelude::Alignment;
@@ -55,20 +55,9 @@ pub fn s1(
                 KeyCode::Right => {
                     break;
                 }
-                KeyCode::Up => {
-                    if let Some(selected) = list_state.selected() {
-                        if selected > 0 {
-                            list_state.select(Some(selected - 1));
-                        }
-                    }
-                }
-                KeyCode::Down => {
-                    if let Some(selected) = list_state.selected() {
-                        if selected < options.len() - 1 {
-                            list_state.select(Some(selected + 1));
-                        }
-                    }
-                }
+                KeyCode::Up | KeyCode::Down => {
+                    navigate_list(&mut list_state, options.len(), event.code);
+                }     
                 KeyCode::Enter => {
                     if let Some(selected) = list_state.selected() {
                         if selected == 4 {

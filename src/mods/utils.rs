@@ -1,5 +1,7 @@
 use clipboard::{ClipboardContext, ClipboardProvider};
 use ratatui::layout::Rect;
+use ratatui::widgets::ListState;
+use crossterm::event::KeyCode;
 use std::fs::{File, OpenOptions};
 use std::io::{self, BufRead, Write};
 use std::path::Path;
@@ -77,4 +79,22 @@ where
 {
     let file = File::open(filename)?;
     Ok(io::BufReader::new(file).lines())
+}
+
+pub fn navigate_list(list_state: &mut ListState, total_options: usize, key_code: KeyCode) {
+    if let Some(selected) = list_state.selected() {
+        match key_code {
+            KeyCode::Up => {
+                if selected > 0 {
+                    list_state.select(Some(selected - 1));
+                }
+            }
+            KeyCode::Down => {
+                if selected < total_options - 1 {
+                    list_state.select(Some(selected + 1));
+                }
+            }
+            _ => {}
+        }
+    }
 }
