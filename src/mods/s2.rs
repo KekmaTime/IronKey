@@ -131,10 +131,9 @@ pub fn s2(
                     }
                 }
                 KeyCode::Char('c') if event.modifiers.contains(KeyModifiers::CONTROL) => {
-                    if let Err(e) = set_clipboard_content(&pass) {
-                        eprintln!("Failed to copy password to clipboard: {}", e);
-                    } else {
-                        status_message = "Password copied to clipboard!".to_string();
+                    match set_clipboard_content(&pass) {
+                        Err(e) => status_message = e,
+                        Ok(_) => status_message = "Password copied to clipboard!".to_string(),
                     }
                 }
                 KeyCode::Char('q') => {

@@ -57,9 +57,14 @@ pub fn generate_csv_content(passwords: &[String]) -> std::io::Result<String> {
     Ok(csv_content)
 }
 
-pub fn set_clipboard_content(content: &str) -> Result<(), Box<dyn std::error::Error>> {
-    let mut ctx: ClipboardContext = ClipboardProvider::new()?;
-    ctx.set_contents(content.to_owned())?;
+pub fn set_clipboard_content(content: &str) -> Result<(), String> {
+    let mut ctx: ClipboardContext = match ClipboardProvider::new() {
+        Ok(ctx) => ctx,
+        Err(_) => return Err("Failed to access clipboard".to_string()),
+    };
+    if let Err(_) = ctx.set_contents(content.to_owned()) {
+        return Err("Failed to copy content to clipboard".to_string());
+    }
     Ok(())
 }
 
