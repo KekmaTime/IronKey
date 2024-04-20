@@ -16,12 +16,12 @@ IronKey is a Terminal User Interface (TUI) based password generator written in R
 
 ## Installation
 
-To install IronKey, you need to have `Rust` & `Git` installed on your machine. If you don't have them installled in your machine, you can install it from the [Rust](https://www.rust-lang.org/tools/install) & [Git](https://git-scm.com/downloads).
+To install IronKey, you need to have `Rust` & `Git` installed on your machine. If you don't have them installed in your machine, you can install it from the [Rust](https://www.rust-lang.org/tools/install) & [Git](https://git-scm.com/downloads).
 
 Once Rust & Git is installed, you can install IronKey by cloning the repository and building the project:
 
 ```sh
-git clone https://git.kekma.tech/IronKey.git
+git clone https://github.com/KekmaTime/IronKey.git
 cd IronKey
 cargo build --release
 ```
