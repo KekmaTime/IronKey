@@ -24,4 +24,4 @@ jobs:
         with:
           registry-token: ${{ secrets.CRATES_IO_TOKEN }}
           check-repo: true
-          dry-run: true
+          dry-run: false
