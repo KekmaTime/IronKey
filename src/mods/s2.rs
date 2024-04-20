@@ -18,7 +18,7 @@ pub fn s2(
     read: &mut dyn FnMut() -> Result<Event, std::io::Error>,
 ) -> Result<(), Box<dyn Error>> {
     let selected_options_array: [bool; 4] = [
-        selected_options.get(0).cloned().unwrap_or_default(),
+        selected_options.first().cloned().unwrap_or_default(),
         selected_options.get(1).cloned().unwrap_or_default(),
         selected_options.get(2).cloned().unwrap_or_default(),
         selected_options.get(3).cloned().unwrap_or_default(),
@@ -28,7 +28,7 @@ pub fn s2(
 
     let mut status_message = String::new();
 
-    let options_2nd_screen = vec!["export-json", "export-csv", "view-passwords"];
+    let options_2nd_screen = ["export-json", "export-csv", "view-passwords"];
     let selected_options_2nd_screen = vec![false; options_2nd_screen.len()];
     let mut list_state_2nd_screen = ListState::default();
     if !options_2nd_screen.is_empty() {
@@ -130,12 +130,10 @@ pub fn s2(
                         }
                     }
                 }
-                KeyCode::Char('c') => {
-                    match set_clipboard_content(&pass) {
-                        Err(e) => status_message = e,
-                        Ok(_) => status_message = "Password copied to clipboard!".to_string(),
-                    }
-                }
+                KeyCode::Char('c') => match set_clipboard_content(&pass) {
+                    Err(e) => status_message = e,
+                    Ok(_) => status_message = "Password copied to clipboard!".to_string(),
+                },
                 KeyCode::Char('q') => {
                     break;
                 }

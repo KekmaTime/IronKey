@@ -5,7 +5,6 @@ use std::fs::{File, OpenOptions};
 use std::io::Write;
 pub fn savepass(filename: &str, password: &str) -> std::io::Result<()> {
     let mut file = OpenOptions::new()
-        .write(true)
         .append(true)
         .create(true)
         .open(filename)?;
@@ -58,15 +57,24 @@ pub fn generate_csv_content(passwords: &[String]) -> std::io::Result<String> {
 pub fn set_clipboard_content(content: &str) -> Result<(), String> {
     use wl_clipboard_rs::copy::{MimeType, Options, Source};
     let opts = Options::new();
-    opts.copy(Source::Bytes(content.to_string().into_bytes().into()), MimeType::Autodetect)
-        .map_err(|_| "Failed to copy content to clipboard".to_string())?;
+    opts.copy(
+        Source::Bytes(content.to_string().into_bytes().into()),
+        MimeType::Autodetect,
+    )
+    .map_err(|_| "Failed to copy content to clipboard".to_string())?;
     Ok(())
 }
 
 #[cfg(not(feature = "wayland_support"))]
 pub fn set_clipboard_content(content: &str) -> Result<(), String> {
-    let clipboard = x11_clipboard::Clipboard::new().map_err(|_| "Failed to access clipboard".to_string())?;
-    clipboard.store(clipboard.setter.atoms.clipboard, clipboard.setter.atoms.utf8_string, content)
+    let clipboard =
+        x11_clipboard::Clipboard::new().map_err(|_| "Failed to access clipboard".to_string())?;
+    clipboard
+        .store(
+            clipboard.setter.atoms.clipboard,
+            clipboard.setter.atoms.utf8_string,
+            content,
+        )
         .map_err(|_| "Failed to copy content to clipboard".to_string())?;
     Ok(())
 }

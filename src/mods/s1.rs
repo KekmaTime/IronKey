@@ -11,8 +11,8 @@ use std::io::Stdout;
 pub fn s1(
     term: &mut Terminal<CrosstermBackend<Stdout>>,
     options: Vec<&str>,
-    selected_options: &mut Vec<bool>,
-    mut list_state: &mut ListState,
+    selected_options: &mut [bool],
+    list_state: &mut ListState,
     input: &mut String,
     pass_len: &mut usize,
 ) -> std::result::Result<(), Box<dyn Error>> {
@@ -48,7 +48,7 @@ pub fn s1(
                 .highlight_style(Style::default().fg(Color::Green))
                 .highlight_symbol("❯ ");
 
-            f.render_stateful_widget(list, centered_rect, &mut list_state);
+            f.render_stateful_widget(list, centered_rect, list_state);
         })?;
         if let Event::Key(event) = read()? {
             match event.code {
@@ -56,7 +56,7 @@ pub fn s1(
                     break;
                 }
                 KeyCode::Up | KeyCode::Down => {
-                    navigate_list(&mut list_state, options.len(), event.code);
+                    navigate_list(list_state, options.len(), event.code);
                 }
                 KeyCode::Enter => {
                     if let Some(selected) = list_state.selected() {
@@ -78,7 +78,7 @@ pub fn s1(
                                 })?;
                                 if let Event::Key(event) = read()? {
                                     match event.code {
-                                        KeyCode::Char(c) if c.is_digit(10) => {
+                                        KeyCode::Char(c) if c.is_ascii_digit() => {
                                             input.push(c);
                                         }
                                         KeyCode::Backspace if !input.is_empty() => {
