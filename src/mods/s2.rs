@@ -1,6 +1,6 @@
 use super::passgen::passgen;
 use super::utils::*;
-use crossterm::event::{Event, KeyCode, KeyModifiers};
+use crossterm::event::{Event, KeyCode};
 use ratatui::backend::CrosstermBackend;
 use ratatui::layout::Rect;
 use ratatui::prelude::Alignment;
@@ -130,7 +130,7 @@ pub fn s2(
                         }
                     }
                 }
-                KeyCode::Char('c') if event.modifiers.contains(KeyModifiers::CONTROL) => {
+                KeyCode::Char('c') => {
                     match set_clipboard_content(&pass) {
                         Err(e) => status_message = e,
                         Ok(_) => status_message = "Password copied to clipboard!".to_string(),

@@ -1,10 +1,8 @@
-use clipboard::{ClipboardContext, ClipboardProvider};
 use crossterm::event::KeyCode;
 use ratatui::layout::Rect;
 use ratatui::widgets::ListState;
 use std::fs::{File, OpenOptions};
 use std::io::Write;
-
 pub fn savepass(filename: &str, password: &str) -> std::io::Result<()> {
     let mut file = OpenOptions::new()
         .write(true)
@@ -56,15 +54,20 @@ pub fn generate_csv_content(passwords: &[String]) -> std::io::Result<String> {
     let csv_content = passwords.join("\n");
     Ok(csv_content)
 }
-
+#[cfg(feature = "wayland_support")]
 pub fn set_clipboard_content(content: &str) -> Result<(), String> {
-    let mut ctx: ClipboardContext = match ClipboardProvider::new() {
-        Ok(ctx) => ctx,
-        Err(_) => return Err("Failed to access clipboard".to_string()),
-    };
-    if let Err(_) = ctx.set_contents(content.to_owned()) {
-        return Err("Failed to copy content to clipboard".to_string());
-    }
+    use wl_clipboard_rs::copy::{MimeType, Options, Source};
+    let opts = Options::new();
+    opts.copy(Source::Bytes(content.to_string().into_bytes().into()), MimeType::Autodetect)
+        .map_err(|_| "Failed to copy content to clipboard".to_string())?;
+    Ok(())
+}
+
+#[cfg(not(feature = "wayland_support"))]
+pub fn set_clipboard_content(content: &str) -> Result<(), String> {
+    let clipboard = x11_clipboard::Clipboard::new().map_err(|_| "Failed to access clipboard".to_string())?;
+    clipboard.store(clipboard.setter.atoms.clipboard, clipboard.setter.atoms.utf8_string, content)
+        .map_err(|_| "Failed to copy content to clipboard".to_string())?;
     Ok(())
 }
 
